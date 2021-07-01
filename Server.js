@@ -1,13 +1,32 @@
 const http = require('http')
-const port = 80
-
 const fs = require('fs')
-var data = fs.readFileSync("DataFile.txt", "utf8")
+const url = require('url')
+
+const port = 80
+// var data = fs.readFileSync("DataFile.JSON", "utf8")
 
 const server = http.createServer(function (request, response) {
-  response.writeHead(200, {"Content-Type": "text/html"})
-  response.write("<h1>data</h1>")
-  response.end()
+  fs.readFile("DataFile.JSON", function(err, data){
+    if (err)
+    {
+      console.log("Something went wrong...")
+      console.log(err)
+    }
+    else
+    {
+      if (request.url == "/cars")
+      {
+        // response.writeHead(200, {"Content-Type": "text/html"})
+        response.write(data)
+      }
+      else
+      {
+        response.write("Not a good request")
+      }
+      
+      response.end()
+    }
+  })
 })
 
 server.listen(port)
