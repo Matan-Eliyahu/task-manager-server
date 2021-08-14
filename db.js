@@ -1,33 +1,27 @@
-const db_File_Name = "tasksFile.JSON"
+const dbFileName = 'tasksFile.JSON'
 fs = require('fs')
+const { promisify } = require('util')
+const readFileAsync = promisify(fs.readFile)
+const writeFileAsync = promisify(fs.writeFile)
 
-function ReadData(){
-    if (fs.existsSync(db_File_Name))
-    {
-        return fs.readFileSync(db_File_Name)
+async function readData() {
+    try {
+        return await readFileAsync(dbFileName)
     }
-    else
-    {
-        initial_data = "{}"
-        fs.writeFileSync(db_File_Name, initial_data)
-        return initial_data
-    }
-}
-
-function WriteData(data){
-    var succeeded_written_to_file = true
-
-    fs.writeFile(db_File_Name, data, function(err){
-        if(err)
-        {
-            console.log(err)
-            console.log("Failed to write in the file")
-            succeeded_written_to_file = false
+    catch (e) {
+        if (e.code === 'ENOENT') {
+           await writeFileAsync(dbFileName, '{}')
+           return '{}'
         }
-    })
-
-    return succeeded_written_to_file
+        else {
+            return e
+        }
+    }
 }
 
-exports.ReadData = ReadData
-exports.WriteData = WriteData
+async function writeData(data) {
+    await writeFileAsync(dbFileName, data)
+}
+
+exports.readData = readData
+exports.writeData = writeData
