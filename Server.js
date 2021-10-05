@@ -1,7 +1,13 @@
 const express = require('express')
+const cors = require('cors')
 
 const app = express()
+
 app.use(express.json())
+app.use(cors({
+  origin:"http://localhost:3000",
+}))
+
 require('./Routes/tasks-routes.js')(app)
 
 const port = 80

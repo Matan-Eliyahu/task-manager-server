@@ -2,7 +2,7 @@ module.exports = function(app) {
     const {v4: uuidv4} = require('uuid')
     const db = require('C:/Users/Matan/task-manager-server/db.js')
 
-    const supportedFields = ['title', 'priority']
+    const supportedFields = ['text', 'priority', 'checked']
     const lastUpdatedTime = 'lastUpdatedTime'
     const createTime = 'createTime'
     const id = 'id'
@@ -50,23 +50,30 @@ module.exports = function(app) {
             var data = await db.readData()
 
             var jsonObjFile = JSON.parse(data)
-        
+
             var jsonObjTask = req.body
+            var recivedId = jsonObjTask.id
+
             Object.keys(jsonObjTask).map(function(field) {
-                if(!(supportedFields.includes(field.toLowerCase()))) {
+                if(!(supportedFields.includes(field.toLowerCase()) && field.toLowerCase() !== 'id')) {
                     delete jsonObjTask[field]
                 }
             })
     
             jsonObjTask[createTime] = new Date().toLocaleString()
-        
-            newTaskId = uuidv4()
-            jsonObjTask[id] = newTaskId
-    
-            jsonObjFile[newTaskId] = jsonObjTask
-            
+
+            if (recivedId === undefined) {
+                newTaskId = uuidv4()
+                jsonObjTask[id] = newTaskId
+                jsonObjFile[newTaskId] = jsonObjTask
+            }
+            else {
+                jsonObjTask[id] = recivedId
+                jsonObjFile[recivedId] = jsonObjTask
+            }
+
             await db.writeData(JSON.stringify(jsonObjFile))
-            res.send(JSON.stringify(newTaskId))
+            res.send(JSON.stringify(jsonObjTask.id))
             console.log('Task created')
         }
         catch (e) {
