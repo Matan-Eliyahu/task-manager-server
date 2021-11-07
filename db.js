@@ -1,27 +1,38 @@
-const dbFileName = 'tasksFile.JSON'
-fs = require('fs')
-const { promisify } = require('util')
-const readFileAsync = promisify(fs.readFile)
-const writeFileAsync = promisify(fs.writeFile)
+const Task = require('C:/Users/Matan/task-manager-server/db-structure-building/Task')
 
-async function readData() {
-    try {
-        return await readFileAsync(dbFileName)
+async function readData(taskId) {
+    if (taskId) {
+        return await Task.findAll({
+            where: {
+                id: taskId
+            }
+        })
     }
-    catch (e) {
-        if (e.code === 'ENOENT') {
-           await writeFileAsync(dbFileName, '{}')
-           return '{}'
-        }
-        else {
-            return e
-        }
-    }
+
+    return await Task.findAll()
 }
 
 async function writeData(data) {
-    await writeFileAsync(dbFileName, data)
+    await Task.create(data)
+}
+
+async function updateData(taskId, data) {
+    return await Task.update(data, {
+        where: {
+            id: taskId
+        }
+    })
+}
+
+async function deleteData(taskId) {
+    return await Task.destroy({
+        where: {
+            id: taskId
+        }
+    })
 }
 
 exports.readData = readData
 exports.writeData = writeData
+exports.updateData = updateData
+exports.deleteData = deleteData
